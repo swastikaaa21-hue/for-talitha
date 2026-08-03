@@ -180,6 +180,9 @@
             gsap.fromTo(hintText, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1.5, delay: 2.7, ease: "power2.out" });
         }
 
+        // Setup Password Modal
+        setupPasswordModal();
+
         // Start animation loop
         animate();
     }
@@ -1169,6 +1172,69 @@
     }
 
     /* ============================================================
+       PASSWORD MODAL LOGIC
+       ============================================================ */
+    const CORRECT_PASSWORD = "kowad"; // Default sandi
+    
+    function setupPasswordModal() {
+        const modal = document.getElementById('password-modal');
+        const submitBtn = document.getElementById('password-submit');
+        const inputField = document.getElementById('password-input');
+        const errorMsg = document.getElementById('password-error');
+        
+        if (!modal || !submitBtn || !inputField) return;
+
+        function checkPassword() {
+            if (inputField.value.toLowerCase() === CORRECT_PASSWORD) {
+                modal.classList.remove('active');
+                errorMsg.style.display = 'none';
+                openEnvelope();
+            } else {
+                errorMsg.style.display = 'block';
+                inputField.value = '';
+                inputField.focus();
+            }
+        }
+
+        submitBtn.addEventListener('click', checkPassword);
+        inputField.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+        
+        // Also close modal if clicking outside content
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    }
+
+    function showPasswordModal() {
+        const modal = document.getElementById('password-modal');
+        const inputField = document.getElementById('password-input');
+        const errorMsg = document.getElementById('password-error');
+        
+        if (modal) {
+            modal.classList.add('active');
+            errorMsg.style.display = 'none';
+            inputField.value = '';
+            setTimeout(() => {
+                inputField.focus();
+            }, 100);
+        } else {
+            // Fallback
+            const pwd = prompt("Masukkan sandi untuk membuka surat:");
+            if (pwd && pwd.toLowerCase() === CORRECT_PASSWORD) {
+                openEnvelope();
+            } else if (pwd !== null) {
+                alert("Sandi salah!");
+            }
+        }
+    }
+
+    /* ============================================================
        INTERACTION HANDLERS
        ============================================================ */
     function onMouseMove(e) {
@@ -1223,6 +1289,10 @@
     function onClick(e) {
         if (isTransitioning) return;
 
+        // Prevent 3D clicks when password modal is open
+        const modal = document.getElementById('password-modal');
+        if (modal && modal.classList.contains('active')) return;
+
         if (currentSection === 0 && !envelopeOpened && sealClickable) {
             mouseNDC.x = (e.clientX / window.innerWidth) * 2 - 1;
             mouseNDC.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -1230,7 +1300,7 @@
 
             const intersects = raycaster.intersectObject(sealClickable);
             if (intersects.length > 0) {
-                openEnvelope();
+                showPasswordModal();
             }
         }
     }

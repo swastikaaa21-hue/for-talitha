@@ -917,3 +917,89 @@ body {
         height: 55px;
     }
 }
+
+/* ===== PASSWORD MODAL ===== */
+.password-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(26, 10, 16, 0.85);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.password-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.password-modal-content {
+    background: var(--warm-white);
+    padding: 2.5rem;
+    border-radius: 16px;
+    text-align: center;
+    max-width: 350px;
+    width: 90%;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--gold);
+    transform: translateY(20px);
+    transition: transform 0.5s var(--transition-bounce);
+}
+
+.password-modal-overlay.active .password-modal-content {
+    transform: translateY(0);
+}
+
+.password-modal-content h3 {
+    font-family: var(--font-calligraphy);
+    font-size: 2rem;
+    color: var(--maroon);
+    margin-bottom: 0.5rem;
+}
+
+.password-modal-content p {
+    font-family: var(--font-body);
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+}
+
+.password-modal-content input {
+    width: 100%;
+    padding: 10px 15px;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    outline: none;
+    transition: border-color 0.3s;
+    background: white;
+    color: #333;
+}
+
+.password-modal-content input:focus {
+    border-color: var(--maroon);
+}
+
+.password-modal-content button {
+    background: var(--maroon);
+    color: var(--warm-white);
+    border: none;
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.password-modal-content button:hover {
+    background: var(--deep-maroon);
+    transform: scale(1.05);
+}
