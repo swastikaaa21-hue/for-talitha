@@ -28,7 +28,7 @@
         pinkWall: 0xF5D0D6,
     };
 
-    const SECTION_COUNT = 7;
+    const SECTION_COUNT = 9;
     const SECTION_SPACING = 30;
 
     // Camera positions for each section [pos, lookAt target]
@@ -38,8 +38,10 @@
         { pos: [0, -58, 6], look: [0, -60, 0] },   // 2: Surat
         { pos: [0, -88, 8], look: [0, -90, 0] },   // 3: Polaroid
         { pos: [0, -118, 7], look: [0, -120, 0] },   // 4: Film Strip
-        { pos: [0, -148, 6], look: [0, -150, 0] },   // 5: Pop-up Card
-        { pos: [0, -178, 5], look: [0, -180, 0] },   // 6: Penutup
+        { pos: [0, -148, 6], look: [0, -150, 0] },   // 5: Time Counter
+        { pos: [0, -178, 6], look: [0, -180, 0] },   // 6: Pop-up Card
+        { pos: [0, -208, 5], look: [0, -210, 0] },   // 7: Penutup
+        { pos: [0, -238, 5], look: [0, -240, 0] },   // 8: Reply Box
     ];
 
     /* ============================================================
@@ -102,14 +104,16 @@
         // Lighting
         setupLighting();
 
-        // Build all 7 sections
+        // Build all 9 sections
         buildSection1_Envelope();
         buildSection2_Greeting();
         buildSection3_LoveLetter();
         buildSection4_Polaroid();
         buildSection5_FilmStrip();
-        buildSection6_PopupCard();
-        buildSection7_Closing();
+        buildSection6_TimeCounter();
+        buildSection7_PopupCard();
+        buildSection8_Closing();
+        buildSection9_Reply();
 
         // Create floating stars (CSS)
         createCSSHearts();
@@ -123,6 +127,28 @@
         // Navigation buttons
         document.getElementById('btn-prev').addEventListener('click', () => navigateTo(currentSection - 1));
         document.getElementById('btn-next').addEventListener('click', () => navigateTo(currentSection + 1));
+
+        // Reply Button (Section 9)
+        const sendReplyBtn = document.getElementById('send-reply-btn');
+        if(sendReplyBtn) {
+            sendReplyBtn.addEventListener('click', () => {
+                const text = document.getElementById('talitha-reply').value;
+                const status = document.getElementById('reply-status');
+                if(text.trim() === '') {
+                    status.textContent = 'Pesan tidak boleh kosong ya sayang...';
+                    return;
+                }
+                status.textContent = 'Membuka WhatsApp...';
+                
+                const msg = encodeURIComponent("Halo Cheetah Amrullah Swastika sayang 💖\n\n" + text);
+                window.open(`https://wa.me/?text=${msg}`, '_blank');
+                
+                setTimeout(() => {
+                    status.textContent = 'Pesan akan terkirim ke WhatsApp-ku! 💖';
+                    document.getElementById('talitha-reply').value = '';
+                }, 2000);
+            });
+        }
 
         // Fullscreen logic
         const fullscreenBtn = document.getElementById('fullscreen-btn');
@@ -184,6 +210,7 @@
         setupPasswordModal();
 
         // Start animation loop
+        onResize();
         animate();
     }
 
@@ -775,11 +802,68 @@
     }
 
     /* ============================================================
-       SECTION 6: POP-UP CARD (Kartu Kejutan)
+       SECTION 6: TIME COUNTER (Penghitung Waktu)
        ============================================================ */
-    function buildSection6_PopupCard() {
+    function buildSection6_TimeCounter() {
         const group = new THREE.Group();
         const baseY = -5 * SECTION_SPACING;
+        group.position.set(0, baseY, 0);
+        
+        sectionGroups.push(group);
+        scene.add(group);
+
+        // Timer Logic
+        const startDate = new Date('2022-05-10T00:00:00');
+        const updateTimer = () => {
+            const now = new Date();
+            const diff = now - startDate;
+            
+            let years = now.getFullYear() - startDate.getFullYear();
+            let months = now.getMonth() - startDate.getMonth();
+            let days = now.getDate() - startDate.getDate();
+            
+            if (days < 0) {
+                months--;
+                const lastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+                days += lastMonth.getDate();
+            }
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+            
+            const totalSeconds = Math.floor(diff / 1000);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const mins = Math.floor((totalSeconds % 3600) / 60);
+            const secs = totalSeconds % 60;
+            
+            const elYears = document.getElementById('t-years');
+            const elMonths = document.getElementById('t-months');
+            const elDays = document.getElementById('t-days');
+            const elHours = document.getElementById('t-hours');
+            const elMins = document.getElementById('t-minutes');
+            const elSecs = document.getElementById('t-seconds');
+            
+            if (elYears) {
+                elYears.textContent = years.toString().padStart(2, '0');
+                elMonths.textContent = months.toString().padStart(2, '0');
+                elDays.textContent = days.toString().padStart(2, '0');
+                elHours.textContent = hours.toString().padStart(2, '0');
+                elMins.textContent = mins.toString().padStart(2, '0');
+                elSecs.textContent = secs.toString().padStart(2, '0');
+            }
+        };
+        
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    }
+
+    /* ============================================================
+       SECTION 7: POP-UP CARD (Kartu Kejutan)
+       ============================================================ */
+    function buildSection7_PopupCard() {
+        const group = new THREE.Group();
+        const baseY = -6 * SECTION_SPACING;
         group.position.set(0, baseY, 0);
 
         // Gingham pattern background
@@ -874,11 +958,11 @@
     }
 
     /* ============================================================
-       SECTION 7: PENUTUP (Closing Scene)
+       SECTION 8: PENUTUP (Closing Scene)
        ============================================================ */
-    function buildSection7_Closing() {
+    function buildSection8_Closing() {
         const group = new THREE.Group();
-        const baseY = -6 * SECTION_SPACING;
+        const baseY = -7 * SECTION_SPACING;
         group.position.set(0, baseY, 0);
 
         // Warm gradient background
@@ -972,6 +1056,57 @@
         sectionGroups.push(group);
     }
 
+    function buildSection9_Reply() {
+        const group = new THREE.Group();
+        const baseY = -8 * SECTION_SPACING;
+        group.position.y = baseY;
+
+        // Add some floating 3D hearts around the reply box
+        const heartMat = new THREE.MeshStandardMaterial({
+            color: COLORS.sunsetPink,
+            roughness: 0.5,
+            transparent: true,
+            opacity: 0.6,
+        });
+
+        for (let i = 0; i < 6; i++) {
+            const hs = createHeartShape(0.08);
+            const hgeo = new THREE.ExtrudeGeometry(hs, {
+                depth: 0.05,
+                bevelEnabled: true,
+                bevelThickness: 0.01,
+                bevelSize: 0.01,
+                bevelSegments: 2,
+            });
+            const heart = new THREE.Mesh(hgeo, heartMat.clone());
+            
+            heart.position.set(
+                (Math.random() - 0.5) * 12,
+                (Math.random() - 0.5) * 8,
+                (Math.random() - 0.5) * 4 - 2
+            );
+
+            // Gentle float animation
+            gsap.to(heart.position, {
+                y: heart.position.y + 1.5,
+                duration: 3 + Math.random() * 2,
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut',
+                delay: Math.random() * 2
+            });
+
+            group.add(heart);
+        }
+
+        const replyLight = new THREE.PointLight(COLORS.softPink, 0.8, 15);
+        replyLight.position.set(0, 2, 5);
+        group.add(replyLight);
+
+        scene.add(group);
+        sectionGroups.push(group);
+    }
+
     /* ============================================================
        NAVIGATION — ULTRA SMOOTH TRANSITIONS
        ============================================================ */
@@ -1056,7 +1191,7 @@
         envelopeOpened = true;
         isTransitioning = true;
 
-        const { flapPivot, seal, group: envGroup, emboss } = envelopeRef;
+        const { flapPivot, seal, group: envGroup } = envelopeRef;
 
         // Step 1: Seal shake & crack
         gsap.to(seal.scale, {
@@ -1067,7 +1202,6 @@
             repeat: 3,
             onComplete: () => {
                 gsap.to(seal.scale, { x: 0, y: 0, z: 0, duration: 0.4, ease: 'power3.in' });
-                gsap.to(emboss.scale, { x: 0, y: 0, z: 0, duration: 0.4, ease: 'power3.in' });
             }
         });
 
@@ -1174,35 +1308,124 @@
     /* ============================================================
        PASSWORD MODAL LOGIC
        ============================================================ */
-    const CORRECT_PASSWORD = "kowad"; // Default sandi
-    
+    const CORRECT_PASSWORD = "030407"; // Default sandi
+
     function setupPasswordModal() {
         const modal = document.getElementById('password-modal');
         const submitBtn = document.getElementById('password-submit');
-        const inputField = document.getElementById('password-input');
+        const pinBoxes = document.querySelectorAll('.pin-box');
         const errorMsg = document.getElementById('password-error');
-        
-        if (!modal || !submitBtn || !inputField) return;
+
+        if (!modal || !submitBtn || pinBoxes.length === 0) return;
+
+        // Auto-focus next input logic
+        pinBoxes.forEach((box, index) => {
+            box.dataset.realValue = '';
+
+            box.addEventListener('input', (e) => {
+                let val = box.value;
+                if (val.length > 0) {
+                    // Extract the newly typed character (ignore existing hearts)
+                    let typedChar = val.replace(/❤/g, '').replace(/️/g, '').trim();
+                    
+                    if (typedChar.length > 0) {
+                        box.dataset.realValue = typedChar.slice(-1);
+                    }
+                    
+                    // Replace visual value with heart
+                    box.value = '❤️';
+                    
+                    // Jump to next
+                    if (index < pinBoxes.length - 1) {
+                        pinBoxes[index + 1].focus();
+                    }
+                } else {
+                    box.dataset.realValue = '';
+                }
+            });
+
+            box.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace') {
+                    if (box.value.length === 0 && index > 0) {
+                        pinBoxes[index - 1].focus();
+                        pinBoxes[index - 1].value = '';
+                        pinBoxes[index - 1].dataset.realValue = '';
+                        e.preventDefault();
+                    } else {
+                        box.dataset.realValue = '';
+                        box.value = '';
+                    }
+                } else if (e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
+            
+            // Auto select text on focus so user can easily overwrite
+            box.addEventListener('focus', () => {
+                box.select();
+            });
+        });
 
         function checkPassword() {
-            if (inputField.value.toLowerCase() === CORRECT_PASSWORD) {
+            // Collect PIN
+            let enteredPwd = '';
+            pinBoxes.forEach(b => enteredPwd += (b.dataset.realValue || ''));
+
+            if (enteredPwd.toLowerCase() === CORRECT_PASSWORD) {
                 modal.classList.remove('active');
                 errorMsg.style.display = 'none';
+
+                // Trigger Confetti Effect
+                if (window.confetti) {
+                    const duration = 3000;
+                    const end = Date.now() + duration;
+                    const colors = ['#FFB6C1', '#FF6B8A', '#D4AF37'];
+
+                    (function frame() {
+                        confetti({
+                            particleCount: 5,
+                            angle: 60,
+                            spread: 55,
+                            origin: { x: 0 },
+                            colors: colors,
+                            zIndex: 9999
+                        });
+                        confetti({
+                            particleCount: 5,
+                            angle: 120,
+                            spread: 55,
+                            origin: { x: 1 },
+                            colors: colors,
+                            zIndex: 9999
+                        });
+
+                        if (Date.now() < end) {
+                            requestAnimationFrame(frame);
+                        }
+                    }());
+                }
+
+                // Start Background Music with Dramatic Fade In
+                const bgMusic = document.getElementById('bg-music');
+                if (bgMusic) {
+                    bgMusic.volume = 0;
+                    bgMusic.play().catch(err => console.log("Audio play failed:", err));
+                    gsap.to(bgMusic, { volume: 0.8, duration: 5, ease: "power2.inOut" });
+                }
+
                 openEnvelope();
             } else {
                 errorMsg.style.display = 'block';
-                inputField.value = '';
-                inputField.focus();
+                pinBoxes.forEach(b => {
+                    b.value = '';
+                    b.dataset.realValue = '';
+                });
+                pinBoxes[0].focus();
             }
         }
 
         submitBtn.addEventListener('click', checkPassword);
-        inputField.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                checkPassword();
-            }
-        });
-        
+
         // Also close modal if clicking outside content
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
@@ -1213,15 +1436,18 @@
 
     function showPasswordModal() {
         const modal = document.getElementById('password-modal');
-        const inputField = document.getElementById('password-input');
+        const pinBoxes = document.querySelectorAll('.pin-box');
         const errorMsg = document.getElementById('password-error');
-        
+
         if (modal) {
             modal.classList.add('active');
             errorMsg.style.display = 'none';
-            inputField.value = '';
+            pinBoxes.forEach(b => {
+                b.value = '';
+                b.dataset.realValue = '';
+            });
             setTimeout(() => {
-                inputField.focus();
+                if (pinBoxes.length > 0) pinBoxes[0].focus();
             }, 100);
         } else {
             // Fallback
@@ -1354,7 +1580,16 @@
        WINDOW RESIZE
        ============================================================ */
     function onResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
+        const aspect = window.innerWidth / window.innerHeight;
+        camera.aspect = aspect;
+        
+        // Optimasi Mobile: Lebarkan FOV (sudut pandang) jika layar vertikal (portrait)
+        if (aspect < 1) {
+            camera.fov = 55 + (1 - aspect) * 35; // Dinamis untuk HP
+        } else {
+            camera.fov = 55;
+        }
+        
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     }
