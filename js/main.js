@@ -138,13 +138,14 @@
                     status.textContent = 'Pesan tidak boleh kosong ya sayang...';
                     return;
                 }
-                status.textContent = 'Membuka WhatsApp...';
+                status.textContent = 'Membuka Aplikasi Email...';
                 
-                const msg = encodeURIComponent("Halo Cheetah Amrullah Swastika sayang 💖\n\n" + text);
-                window.open(`https://wa.me/?text=${msg}`, '_blank');
+                const subject = encodeURIComponent("Pesan untuk Swastika 💖");
+                const body = encodeURIComponent("Halo Cheetah Amrullah Swastika sayang 💖\n\n" + text);
+                window.location.href = `mailto:swastikaaa@gmail.com?subject=${subject}&body=${body}`;
                 
                 setTimeout(() => {
-                    status.textContent = 'Pesan akan terkirim ke WhatsApp-ku! 💖';
+                    status.textContent = 'Pesan disiapkan untuk Email-ku! 💖';
                     document.getElementById('talitha-reply').value = '';
                 }, 2000);
             });
