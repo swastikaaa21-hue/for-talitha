@@ -140,27 +140,32 @@
                 }
                 status.textContent = 'Mengirim pesan secara diam-diam...';
 
-                // Menggunakan layanan pihak ketiga (FormSubmit) untuk mengirim email di belakang layar
-                fetch("https://formsubmit.co/ajax/swastikaaa21@gmail.com", {
-                    method: "POST",
-                    headers: { 
+                // Menggunakan Web3Forms untuk mengirim pesan secara diam-diam tanpa masalah CORS
+                fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({
-                        _subject: "Pesan dari Talitha untuk Swastika 💖",
-                        pesan: text,
-                        _template: "box"
+                        access_key: '68642d77-a120-43e4-aa7c-8e15076a3aa2',
+                        subject: 'Pesan Spesial dari Talitha 💖',
+                        pesan: text
                     })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    status.textContent = 'Pesan terkirim ke cheetah💖';
-                    document.getElementById('talitha-reply').value = '';
+                .then(async (response) => {
+                    let json = await response.json();
+                    if (response.status == 200) {
+                        status.textContent = 'Pesan terkirim ke cheetah💖';
+                        document.getElementById('talitha-reply').value = '';
+                    } else {
+                        console.error("Web3Forms Error:", json);
+                        status.textContent = 'Gagal mengirim pesan. Coba lagi nanti.';
+                    }
                 })
                 .catch(error => {
-                    console.error("Error:", error);
-                    status.textContent = 'Gagal mengirim pesan. Coba lagi nanti.';
+                    console.error("Fetch Error:", error);
+                    status.textContent = 'Gagal mengirim pesan. Periksa koneksi internetmu.';
                 });
             });
         }
