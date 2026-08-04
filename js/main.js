@@ -130,24 +130,38 @@
 
         // Reply Button (Section 9)
         const sendReplyBtn = document.getElementById('send-reply-btn');
-        if(sendReplyBtn) {
+        if (sendReplyBtn) {
             sendReplyBtn.addEventListener('click', () => {
                 const text = document.getElementById('talitha-reply').value;
                 const status = document.getElementById('reply-status');
-                if(text.trim() === '') {
+                if (text.trim() === '') {
                     status.textContent = 'Pesan tidak boleh kosong ya sayang...';
                     return;
                 }
-                status.textContent = 'Membuka Aplikasi Email...';
-                
-                const subject = encodeURIComponent("Pesan untuk Swastika 💖");
-                const body = encodeURIComponent("Halo Cheetah Amrullah Swastika sayang 💖\n\n" + text);
-                window.location.href = `mailto:swastikaaa@gmail.com?subject=${subject}&body=${body}`;
-                
-                setTimeout(() => {
-                    status.textContent = 'Pesan disiapkan untuk Email-ku! 💖';
+                status.textContent = 'Mengirim pesan secara diam-diam...';
+
+                // Menggunakan layanan pihak ketiga (FormSubmit) untuk mengirim email di belakang layar
+                fetch("https://formsubmit.co/ajax/swastikaaa21@gmail.com", {
+                    method: "POST",
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        _subject: "Pesan dari Talitha untuk Swastika 💖",
+                        pesan: text,
+                        _template: "box"
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    status.textContent = 'Pesan terkirim ke cheetah💖';
                     document.getElementById('talitha-reply').value = '';
-                }, 2000);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    status.textContent = 'Gagal mengirim pesan. Coba lagi nanti.';
+                });
             });
         }
 
@@ -809,7 +823,7 @@
         const group = new THREE.Group();
         const baseY = -5 * SECTION_SPACING;
         group.position.set(0, baseY, 0);
-        
+
         sectionGroups.push(group);
         scene.add(group);
 
@@ -818,11 +832,11 @@
         const updateTimer = () => {
             const now = new Date();
             const diff = now - startDate;
-            
+
             let years = now.getFullYear() - startDate.getFullYear();
             let months = now.getMonth() - startDate.getMonth();
             let days = now.getDate() - startDate.getDate();
-            
+
             if (days < 0) {
                 months--;
                 const lastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
@@ -832,19 +846,19 @@
                 years--;
                 months += 12;
             }
-            
+
             const totalSeconds = Math.floor(diff / 1000);
             const hours = Math.floor((totalSeconds % 86400) / 3600);
             const mins = Math.floor((totalSeconds % 3600) / 60);
             const secs = totalSeconds % 60;
-            
+
             const elYears = document.getElementById('t-years');
             const elMonths = document.getElementById('t-months');
             const elDays = document.getElementById('t-days');
             const elHours = document.getElementById('t-hours');
             const elMins = document.getElementById('t-minutes');
             const elSecs = document.getElementById('t-seconds');
-            
+
             if (elYears) {
                 elYears.textContent = years.toString().padStart(2, '0');
                 elMonths.textContent = months.toString().padStart(2, '0');
@@ -854,7 +868,7 @@
                 elSecs.textContent = secs.toString().padStart(2, '0');
             }
         };
-        
+
         setInterval(updateTimer, 1000);
         updateTimer();
     }
@@ -1080,7 +1094,7 @@
                 bevelSegments: 2,
             });
             const heart = new THREE.Mesh(hgeo, heartMat.clone());
-            
+
             heart.position.set(
                 (Math.random() - 0.5) * 12,
                 (Math.random() - 0.5) * 8,
@@ -1328,14 +1342,14 @@
                 if (val.length > 0) {
                     // Extract the newly typed character (ignore existing hearts)
                     let typedChar = val.replace(/❤/g, '').replace(/️/g, '').trim();
-                    
+
                     if (typedChar.length > 0) {
                         box.dataset.realValue = typedChar.slice(-1);
                     }
-                    
+
                     // Replace visual value with heart
                     box.value = '❤️';
-                    
+
                     // Jump to next
                     if (index < pinBoxes.length - 1) {
                         pinBoxes[index + 1].focus();
@@ -1360,7 +1374,7 @@
                     checkPassword();
                 }
             });
-            
+
             // Auto select text on focus so user can easily overwrite
             box.addEventListener('focus', () => {
                 box.select();
@@ -1583,14 +1597,14 @@
     function onResize() {
         const aspect = window.innerWidth / window.innerHeight;
         camera.aspect = aspect;
-        
+
         // Optimasi Mobile: Lebarkan FOV (sudut pandang) jika layar vertikal (portrait)
         if (aspect < 1) {
             camera.fov = 55 + (1 - aspect) * 35; // Dinamis untuk HP
         } else {
             camera.fov = 55;
         }
-        
+
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     }
