@@ -224,6 +224,37 @@
             gsap.to(envelopeRef.oceanMat, { opacity: 0.85, duration: 2, ease: "power2.inOut", delay: 0.5 });
             gsap.to(envelopeRef.group.position, { y: 0.5, duration: 2, ease: "back.out(1.5)", delay: 1 });
             gsap.to(envelopeRef.group.scale, { x: 1, y: 1, z: 1, duration: 2, ease: "back.out(1.5)", delay: 1 });
+            
+            // Floating animation (Animasi amplop melayang - lebih bergerak)
+            gsap.to(envelopeRef.group.position, {
+                y: 0.9, // Terbang lebih tinggi
+                duration: 1.8, // Sedikit lebih cepat
+                ease: "sine.inOut",
+                yoyo: true,
+                repeat: -1,
+                delay: 3
+            });
+            gsap.to(envelopeRef.group.rotation, {
+                z: 0.08, // Putaran lebih terasa
+                x: 0.12, 
+                y: 0.05,
+                duration: 2.2,
+                ease: "sine.inOut",
+                yoyo: true,
+                repeat: -1,
+                delay: 3
+            });
+            // Efek nafas (scale)
+            gsap.to(envelopeRef.group.scale, {
+                x: 1.03,
+                y: 1.03,
+                z: 1.03,
+                duration: 1.5,
+                ease: "sine.inOut",
+                yoyo: true,
+                repeat: -1,
+                delay: 3
+            });
         }
 
         const titleMail = document.querySelector('.title-mail');
@@ -403,6 +434,18 @@
         const inside = new THREE.Mesh(insideGeo, insideMat);
         inside.position.z = 0.065;
         envGroup.add(inside);
+
+        // Kertas Surat (Paper Inside)
+        const paperGeo = new THREE.PlaneGeometry(3.1, 2.1);
+        const paperMat = new THREE.MeshStandardMaterial({
+            color: COLORS.warmWhite,
+            roughness: 0.9,
+        });
+        const paper = new THREE.Mesh(paperGeo, paperMat);
+        // Posisi z sedikit di depan "inside" tapi di belakang "flap"
+        paper.position.set(0, -0.1, 0.07);
+        envGroup.add(paper);
+        envelopeRef.paper = paper;
 
         // Flap
         const flapShape = new THREE.Shape();
@@ -1244,11 +1287,34 @@
             });
         });
 
-        // Step 4: Camera zooms in gently
+        // Step 3.5: Kertas surat perlahan keluar (Letter slides out)
+        gsap.delayedCall(1.8, () => {
+            if (envelopeRef.paper) {
+                // Hentikan animasi melayang
+                gsap.killTweensOf(envelopeRef.group.position);
+                gsap.killTweensOf(envelopeRef.group.rotation);
+                
+                // Kertas keluar ke atas dan maju (z: 0.35) agar benar-benar di depan segitiga merah
+                gsap.to(envelopeRef.paper.position, {
+                    y: 1.6,
+                    z: 0.35, 
+                    duration: 1.5,
+                    ease: 'power2.out'
+                });
+                // Kertas tetap lurus
+                gsap.to(envelopeRef.paper.rotation, {
+                    x: 0,
+                    duration: 1.5,
+                    ease: 'power2.out'
+                });
+            }
+        });
+
+        // Step 4: Camera zooms in gently, following the paper
         gsap.delayedCall(2.2, () => {
             gsap.to(camera.position, {
-                x: 0, y: 0.5, z: 2,
-                duration: 1.8,
+                x: 0, y: 1.2, z: 2.5, // Kamera naik sedikit melihat kertas
+                duration: 2.2,
                 ease: 'power2.inOut',
             });
 
